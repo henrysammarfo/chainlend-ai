@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.26;
 
 import "@zetachain/protocol-contracts/contracts/zevm/SystemContract.sol";
-import "@zetachain/protocol-contracts/contracts/zevm/interfaces/zContract.sol";
+import "@zetachain/protocol-contracts/contracts/zevm/interfaces/UniversalContract.sol";
+import "@zetachain/protocol-contracts/contracts/Revert.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -12,7 +13,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @dev Cross-chain lending platform powered by ZetaChain Universal Smart Contracts
  * @notice This contract enables lending and borrowing across multiple blockchains
  */
-contract ChainLendAI is zContract, ReentrancyGuard, Ownable {
+contract ChainLendAI is UniversalContract, ReentrancyGuard, Ownable {
     SystemContract public systemContract;
     
     // Events
@@ -187,7 +188,6 @@ contract ChainLendAI is zContract, ReentrancyGuard, Ownable {
         bytes32 _poolId
     ) public view returns (uint256) {
         UserPosition memory position = userPositions[_user][_poolId];
-        LendingPool memory pool = lendingPools[_poolId];
         
         if (position.amount == 0) return 0;
         
@@ -222,9 +222,9 @@ contract ChainLendAI is zContract, ReentrancyGuard, Ownable {
     /**
      * @dev Cross-chain message handling (ZetaChain Universal Contract)
      */
-    function onCrossChainCall(
-        zContext calldata context,
-        address zrc20,
+    function onCall(
+        MessageContext calldata context,
+        address /* zrc20 */,
         uint256 amount,
         bytes calldata message
     ) external override {
