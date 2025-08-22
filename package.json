@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/chainlend-ai.git"
+    "url": "https://github.com/henrysammarfo/chainlend-ai.git"
   },
   "scripts": {
     "dev": "vite",
