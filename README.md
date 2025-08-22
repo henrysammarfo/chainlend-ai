@@ -75,7 +75,7 @@
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/yourusername/chainlend-ai.git
+git clone https://github.com/henrysammarfo/chainlend-ai.git
 cd chainlend-ai
 npm install
 ```
