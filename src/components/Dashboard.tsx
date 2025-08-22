@@ -294,7 +294,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
               onClick={handleAutoInvest}
               className="border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors"
             >
-              {isConnected ? 'Auto-Invest' : 'Connect Wallet'}
+              {isConnected ? 'Enable Auto-Invest' : 'Connect Wallet'}
             </button>
           </div>
         </div>

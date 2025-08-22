@@ -129,7 +129,7 @@ export const Portfolio: React.FC = () => {
         </div>
         <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-600 transition-all duration-200 flex items-center space-x-2">
           <Target className="w-4 h-4" />
-          <span>Optimize Portfolio</span>
+          <span>View Analytics</span>
         </button>
       </div>
 

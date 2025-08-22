@@ -103,22 +103,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ setActiveTab }) => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-gradient-to-br from-slate-50 to-white">
+      <section className="pt-24 pb-16 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="inline-flex items-center space-x-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center space-x-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-4 py-2 rounded-full text-sm font-medium">
                   <Zap className="w-4 h-4" />
                   <span>Powered by ZetaChain & Google AI</span>
                 </div>
-                <h1 className="text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
+                <h1 className="text-5xl lg:text-6xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
                   Cross-Chain Lending
                   <span className="block bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
                     Powered by AI
                   </span>
                 </h1>
-                <p className="text-xl text-slate-600 leading-relaxed">
+                <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
                   Maximize your DeFi yields with AI-powered cross-chain lending. Access liquidity across 5+ blockchains with intelligent risk assessment and dynamic APY optimization.
                 </p>
               </div>
@@ -140,18 +140,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ setActiveTab }) => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
                 {stats.map((stat, index) => (
                   <div key={index} className="text-center">
-                    <div className="text-2xl font-bold text-slate-900">{stat.value}</div>
-                    <div className="text-sm text-slate-600">{stat.label}</div>
+                    <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-2xl shadow-2xl p-8 border border-slate-200">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-200 dark:border-slate-700">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-slate-900">Live Opportunities</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Live Opportunities</h3>
                     <div className="flex items-center space-x-2 text-green-600 text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       <span>Live</span>
@@ -159,11 +159,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ setActiveTab }) => {
                   </div>
                   
                   {[
-                    { token: 'USDC', chain: 'ZetaChain', apy: '15.2%', risk: 'Low' },
-                    { token: 'ETH', chain: 'Ethereum', apy: '12.8%', risk: 'Medium' },
-                    { token: 'USDT', chain: 'BSC', apy: '18.4%', risk: 'Medium' }
+                    { token: 'USDC', chain: 'ZetaChain', apy: '15.2%', risk: 'Low', tvl: '$1.2M', available: '$340K' },
+                    { token: 'ETH', chain: 'Ethereum', apy: '12.8%', risk: 'Medium', tvl: '$2.1M', available: '$780K' },
+                    { token: 'USDT', chain: 'BSC', apy: '18.4%', risk: 'Medium', tvl: '$890K', available: '$210K' },
+                    { token: 'DAI', chain: 'Polygon', apy: '11.6%', risk: 'Low', tvl: '$1.5M', available: '$450K' },
+                    { token: 'AVAX', chain: 'Avalanche', apy: '14.7%', risk: 'High', tvl: '$650K', available: '$180K' },
+                    { token: 'BNB', chain: 'BSC', apy: '13.9%', risk: 'Medium', tvl: '$980K', available: '$320K' }
                   ].map((opportunity, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                    <div key={index} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
                       <div className="flex items-center space-x-3">
                         <img 
                           src={getCoinLogo(opportunity.token)} 
@@ -175,13 +178,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ setActiveTab }) => {
                           }}
                         />
                         <div>
-                          <div className="font-medium text-slate-900">{opportunity.token}</div>
-                          <div className="text-sm text-slate-600">{opportunity.chain}</div>
+                          <div className="font-medium text-slate-900 dark:text-slate-100">{opportunity.token}</div>
+                          <div className="text-sm text-slate-600 dark:text-slate-400">{opportunity.chain}</div>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-green-600">{opportunity.apy}</div>
-                        <div className="text-xs text-slate-600">{opportunity.risk} Risk</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">{opportunity.risk} Risk</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-500">TVL: {opportunity.tvl}</div>
                       </div>
                     </div>
                   ))}
