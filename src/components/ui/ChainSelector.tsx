@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
+import { useWallet } from '../../contexts/WalletContext';
 
 const chains = [
-  { id: 'all', name: 'All Chains', color: 'bg-slate-500' },
-  { id: 'zetachain', name: 'ZetaChain', color: 'bg-green-500' },
-  { id: 'ethereum', name: 'Ethereum', color: 'bg-blue-500' },
-  { id: 'bsc', name: 'BSC', color: 'bg-yellow-500' },
-  { id: 'polygon', name: 'Polygon', color: 'bg-purple-500' },
-  { id: 'avalanche', name: 'Avalanche', color: 'bg-red-500' },
+  { id: 'all', name: 'All Chains', color: 'bg-slate-500', chainId: null },
+  { id: 'zetachain', name: 'ZetaChain', color: 'bg-green-500', chainId: 7001 },
+  { id: 'ethereum', name: 'Ethereum', color: 'bg-blue-500', chainId: 11155111 },
+  { id: 'bsc', name: 'BSC', color: 'bg-yellow-500', chainId: 97 },
+  { id: 'polygon', name: 'Polygon', color: 'bg-purple-500', chainId: 80001 },
+  { id: 'avalanche', name: 'Avalanche', color: 'bg-red-500', chainId: 43113 },
 ];
 
 export const ChainSelector: React.FC = () => {
-  const [selectedChain, setSelectedChain] = useState(chains[0]);
+  const { chainId, switchChain } = useWallet();
+  const [selectedChain, setSelectedChain] = useState(() => {
+    const currentChain = chains.find(chain => chain.chainId === chainId) || chains[0];
+    return currentChain;
+  });
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -30,9 +35,18 @@ export const ChainSelector: React.FC = () => {
           {chains.map((chain) => (
             <button
               key={chain.id}
-              onClick={() => {
+              onClick={async () => {
                 setSelectedChain(chain);
                 setIsOpen(false);
+                
+                // Switch network if chainId is provided
+                if (chain.chainId && chain.chainId !== chainId) {
+                  try {
+                    await switchChain(chain.chainId);
+                  } catch (error) {
+                    console.error('Failed to switch network:', error);
+                  }
+                }
               }}
               className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-slate-50 first:rounded-t-lg last:rounded-b-lg"
             >

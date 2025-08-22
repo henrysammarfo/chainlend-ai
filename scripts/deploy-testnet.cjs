@@ -6,7 +6,7 @@ async function main() {
   // Get the deployer account
   const [deployer] = await ethers.getSigners();
   console.log("📝 Deploying contracts with account:", deployer.address);
-  console.log("💰 Account balance:", (await deployer.getBalance()).toString());
+  console.log("💰 Account balance:", ethers.formatEther(await deployer.provider.getBalance(deployer.address)), "ZETA");
   
   // ZetaChain Testnet Addresses (Athens Testnet)
   const SYSTEM_CONTRACT_ADDRESS = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"; // ZetaChain Athens Testnet
@@ -23,8 +23,8 @@ async function main() {
     GATEWAY_ADDRESS
   );
   
-  await chainLendAI.deployed();
-  console.log("✅ ChainLend AI deployed to:", chainLendAI.address);
+  await chainLendAI.waitForDeployment();
+  console.log("✅ ChainLend AI deployed to:", await chainLendAI.getAddress());
   
   // Create initial lending pools
   console.log("🏊 Creating initial lending pools...");
@@ -95,14 +95,15 @@ async function main() {
   console.log("🤖 AI Recommendations:", (await chainLendAI.aiRecommendationCount()).toString());
   
   console.log("\n🎉 Deployment Complete!");
-  console.log("📋 Contract Address:", chainLendAI.address);
-  console.log("🔗 Explorer:", `https://athens3.explorer.zetachain.com/address/${chainLendAI.address}`);
+  const contractAddress = await chainLendAI.getAddress();
+  console.log("📋 Contract Address:", contractAddress);
+  console.log("🔗 Explorer:", `https://athens3.explorer.zetachain.com/address/${contractAddress}`);
   
   // Save deployment info
   const deploymentInfo = {
     network: "zetachain-testnet",
     chainId: 7001,
-    contractAddress: chainLendAI.address,
+    contractAddress: contractAddress,
     deployer: deployer.address,
     timestamp: new Date().toISOString(),
     pools: [

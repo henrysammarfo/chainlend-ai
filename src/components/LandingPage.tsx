@@ -14,6 +14,7 @@ import {
   Play
 } from 'lucide-react';
 import { getCoinLogo } from '../utils/coinLogos';
+import { Logo } from './ui/Logo';
 
 interface LandingPageProps {
   setActiveTab: (tab: any) => void;
@@ -85,14 +86,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ setActiveTab }) => {
       <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                ChainLend AI
-              </h1>
-            </div>
+            <Logo size="md" />
             <div className="flex items-center space-x-6">
               <a href="#features" className="text-slate-600 hover:text-slate-900 font-medium">Features</a>
               <a href="#how-it-works" className="text-slate-600 hover:text-slate-900 font-medium">How it Works</a>

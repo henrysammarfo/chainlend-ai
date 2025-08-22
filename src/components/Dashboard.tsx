@@ -12,10 +12,14 @@ import {
 import { StatCard } from './ui/StatCard';
 import { ChainSelector } from './ui/ChainSelector';
 import { AIInsights } from './ui/AIInsights';
-import { ZetaChainStatus } from './ui/ZetaChainStatus';
+// import { ZetaChainStatus } from './ui/ZetaChainStatus';
 import { useWallet } from '../contexts/WalletContext';
 
-export const Dashboard: React.FC = () => {
+interface DashboardProps {
+  setActiveTab?: (tab: string) => void;
+}
+
+export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   const { isConnected, connectWallet } = useWallet();
 
   const stats = [
@@ -83,8 +87,8 @@ export const Dashboard: React.FC = () => {
 
         {/* Right Sidebar */}
         <div className="space-y-6">
-          {/* ZetaChain Status */}
-          <ZetaChainStatus />
+          {/* ZetaChain Status - Temporarily disabled */}
+          {/* <ZetaChainStatus /> */}
           
           {/* Recent Activity */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
@@ -93,10 +97,13 @@ export const Dashboard: React.FC = () => {
                 <Activity className="w-5 h-5 mr-2 text-blue-500" />
                 Recent Activity
               </h3>
-              <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
-                View All
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </button>
+                          <button 
+              onClick={() => setActiveTab('lending')}
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
+            >
+              View All
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
             </div>
             
             <div className="space-y-4">

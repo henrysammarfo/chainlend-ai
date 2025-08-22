@@ -2,6 +2,7 @@ import React from 'react';
 import { Wallet, TrendingUp, BarChart3, PieChart, Target, ArrowUpRight } from 'lucide-react';
 import { WithdrawModal } from './ui/WithdrawModal';
 import { getCoinLogo } from '../utils/coinLogos';
+import { useWallet } from '../contexts/WalletContext';
 
 export const Portfolio: React.FC = () => {
   const { testnetBalances } = useWallet();

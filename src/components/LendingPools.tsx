@@ -161,7 +161,7 @@ export const LendingPools: React.FC = () => {
               {isConnected ? 'Enable Auto-Invest' : 'Connect Wallet'}
             </button>
             <button
-              onClick={() => window.open('https://www.zetachain.com/docs/developers/testnet/', '_blank')}
+              onClick={() => window.open('https://cloud.google.com/application/web3/faucet/zetachain/testnet', '_blank')}
               className="bg-white/20 text-white px-4 py-3 rounded-lg font-medium hover:bg-white/30 transition-colors"
             >
               Get Testnet Tokens

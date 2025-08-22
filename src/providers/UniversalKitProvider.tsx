@@ -10,10 +10,10 @@ const config = createConfig({
   chains: [zetaTestnet],
   connectors: [
     injected(),
-    walletConnect({ projectId: 'your-project-id' }) // Optional: Add WalletConnect
+    // walletConnect({ projectId: 'your-project-id' }) // Commented out for now
   ],
   transports: {
-    [zetaTestnet.id]: http(process.env.ZETACHAIN_RPC_URL || 'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'),
+    [zetaTestnet.id]: http('https://zetachain-athens-evm.blockpi.network/v1/rpc/public'),
   },
 });
 

@@ -88,7 +88,29 @@ export const AIInsights: React.FC = () => {
             if (!isConnected) {
               connectWallet();
             } else {
-              alert('AI is analyzing your portfolio and market conditions. New recommendations will appear shortly!');
+              // Show a proper notification instead of alert
+              const notification = document.createElement('div');
+              notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+              notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                  <div class="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                    <svg class="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <span>🤖 AI analyzing portfolio... New recommendations coming soon!</span>
+                </div>
+              `;
+              document.body.appendChild(notification);
+              
+              // Animate in
+              setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+              
+              // Remove after 5 seconds
+              setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => document.body.removeChild(notification), 300);
+              }, 5000);
             }
           }}
           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200"
