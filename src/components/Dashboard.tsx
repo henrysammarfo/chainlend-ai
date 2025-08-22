@@ -12,6 +12,7 @@ import {
 import { StatCard } from './ui/StatCard';
 import { ChainSelector } from './ui/ChainSelector';
 import { AIInsights } from './ui/AIInsights';
+import { ZetaChainStatus } from './ui/ZetaChainStatus';
 import { useWallet } from '../contexts/WalletContext';
 
 export const Dashboard: React.FC = () => {
@@ -80,42 +81,48 @@ export const Dashboard: React.FC = () => {
           <AIInsights />
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 flex items-center">
-              <Activity className="w-5 h-5 mr-2 text-blue-500" />
-              Recent Activity
-            </h3>
-            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
-              View All
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
-          </div>
+        {/* Right Sidebar */}
+        <div className="space-y-6">
+          {/* ZetaChain Status */}
+          <ZetaChainStatus />
           
-          <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                    activity.type === 'Lend' ? 'bg-green-100 text-green-700' :
-                    activity.type === 'Borrow' ? 'bg-blue-100 text-blue-700' :
-                    activity.type === 'Repay' ? 'bg-orange-100 text-orange-700' :
-                    'bg-purple-100 text-purple-700'
-                  }`}>
-                    {activity.type[0]}
+          {/* Recent Activity */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-slate-900 flex items-center">
+                <Activity className="w-5 h-5 mr-2 text-blue-500" />
+                Recent Activity
+              </h3>
+              <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
+                View All
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                      activity.type === 'Lend' ? 'bg-green-100 text-green-700' :
+                      activity.type === 'Borrow' ? 'bg-blue-100 text-blue-700' :
+                      activity.type === 'Repay' ? 'bg-orange-100 text-orange-700' :
+                      'bg-purple-100 text-purple-700'
+                    }`}>
+                      {activity.type[0]}
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-900">{activity.amount}</p>
+                      <p className="text-xs text-slate-600">{activity.chain} • {activity.time}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-slate-900">{activity.amount}</p>
-                    <p className="text-xs text-slate-600">{activity.chain} • {activity.time}</p>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-green-600">{activity.apy}</p>
+                    <p className="text-xs text-slate-600">APY</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-green-600">{activity.apy}</p>
-                  <p className="text-xs text-slate-600">APY</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

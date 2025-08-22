@@ -8,6 +8,7 @@ import { Analytics } from './components/Analytics';
 import { Settings } from './components/Settings';
 import { WalletProvider } from './contexts/WalletContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { UniversalKitProvider } from './providers/UniversalKitProvider';
 
 type ActiveTab = 'landing' | 'dashboard' | 'lending' | 'portfolio' | 'analytics' | 'settings';
 
@@ -34,18 +35,20 @@ function App() {
   };
 
   return (
-    <ThemeProvider>
-      <WalletProvider>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
-          {activeTab !== 'landing' && (
-            <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-          )}
-          <main className={activeTab !== 'landing' ? 'pt-16' : ''}>
-            {renderActiveComponent()}
-          </main>
-        </div>
-      </WalletProvider>
-    </ThemeProvider>
+    <UniversalKitProvider>
+      <ThemeProvider>
+        <WalletProvider>
+          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
+            {activeTab !== 'landing' && (
+              <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+            )}
+            <main className={activeTab !== 'landing' ? 'pt-16' : ''}>
+              {renderActiveComponent()}
+            </main>
+          </div>
+        </WalletProvider>
+      </ThemeProvider>
+    </UniversalKitProvider>
   );
 }
 
