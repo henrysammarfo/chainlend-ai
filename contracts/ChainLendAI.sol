@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import "@zetachain/protocol-contracts/contracts/zevm/SystemContract.sol";
 import "@zetachain/protocol-contracts/contracts/zevm/interfaces/IZRC20.sol";
 import "@zetachain/protocol-contracts/contracts/zevm/interfaces/IGatewayZEVM.sol";
+import "@zetachain/protocol-contracts/contracts/zevm/interfaces/UniversalContract.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,7 +14,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @dev Cross-chain lending platform using ZetaChain's Universal Smart Contract architecture
  * @notice This contract enables lending and borrowing across multiple blockchains through ZetaChain
  */
-contract ChainLendAI is ReentrancyGuard, Ownable {
+contract ChainLendAI is UniversalContract, ReentrancyGuard, Ownable {
     SystemContract public immutable systemContract;
     IGatewayZEVM public immutable gateway;
     
@@ -233,81 +234,85 @@ contract ChainLendAI is ReentrancyGuard, Ownable {
         crossChainRequestCount++;
         
         // Initiate cross-chain call through ZetaChain Gateway
-        bytes memory message = abi.encode(
-            _targetChain,
-            _token,
-            msg.sender,
-            _amount,
-            "lend",
-            requestId
-        );
+        // We need a ZRC20 token for the target chain to pay gas fees
+        // For now, we'll emit an event and implement the actual cross-chain call later
+        // when we have the proper ZRC20 addresses for each chain
         
-        // Call ZetaChain Gateway to initiate cross-chain transaction
-        // The call function takes: receiver, zrc20, message, callOptions, revertOptions
-        bytes memory receiver = abi.encodePacked(address(this)); // receiver contract on target chain
-        
-        CallOptions memory callOptions = CallOptions({
-            gasLimit: CROSS_CHAIN_GAS_LIMIT,
-            isArbitraryCall: false
-        });
-        
-        RevertOptions memory revertOptions = RevertOptions({
-            revertAddress: address(0),
-            callOnRevert: false,
-            abortAddress: address(0),
-            revertMessage: "",
-            onRevertGasLimit: 0
-        });
-        
-        gateway.call(
-            receiver,
-            address(0), // Use ZETA for gas fees
-            message,
-            callOptions,
-            revertOptions
-        );
-        
-        emit CrossChainCallInitiated(_sourceChain, _targetChain, msg.sender, _amount);
+        // TODO: Implement actual Gateway call once we have proper ZRC20 addresses
+        // bytes memory message = abi.encode(
+        //     _targetChain,
+        //     _token,
+        //     msg.sender,
+        //     _amount,
+        //     "lend",
+        //     requestId
+        // );
+        // bytes memory receiver = abi.encodePacked(address(this));
+        // 
+        // CallOptions memory callOptions = CallOptions({
+        //     gasLimit: CROSS_CHAIN_GAS_LIMIT,
+        //     isArbitraryCall: false
+        // });
+        // 
+        // RevertOptions memory revertOptions = RevertOptions({
+        //     revertAddress: address(0),
+        //     callOnRevert: false,
+        //     abortAddress: address(0),
+        //     revertMessage: "",
+        //     onRevertGasLimit: 0
+        // });
+        // 
+        // gateway.call(
+        //     receiver,
+        //     zrc20TokenForTargetChain, // Need actual ZRC20 address
+        //     message,
+        //     callOptions,
+        //     revertOptions
+        // );
     }
     
     /**
      * @dev Handle cross-chain call from ZetaChain Gateway
      * This function is called by the Gateway when a cross-chain message arrives
+     * Implements the UniversalContract interface
      */
-    function onCrossChainMessage(
-        uint256 _sourceChain,
-        address /* _sender */,
-        bytes calldata _message
-    ) external onlyGateway {
+    function onCall(
+        MessageContext calldata context,
+        address /* zrc20 */,
+        uint256 amount,
+        bytes calldata message
+    ) external override onlyGateway {
         // Decode the cross-chain message
         (
             uint256 targetChain,
             address token,
             address user,
-            uint256 amount,
+            uint256 messageAmount,
             string memory action,
             bytes32 requestId
-        ) = abi.decode(_message, (uint256, address, address, uint256, string, bytes32));
+        ) = abi.decode(message, (uint256, address, address, uint256, string, bytes32));
         
-        // Verify the cross-chain request exists
-        CrossChainRequest storage request = crossChainRequests[requestId];
-        require(request.sourceChain == _sourceChain, "Invalid source chain");
-        require(request.user == user, "Invalid user");
-        require(request.token == token, "Invalid token");
-        require(request.amount == amount, "Invalid amount");
-        require(!request.isCompleted, "Request already completed");
+        // Verify the cross-chain request exists (if requestId is provided)
+        if (requestId != bytes32(0)) {
+            CrossChainRequest storage request = crossChainRequests[requestId];
+            require(request.sourceChain == context.chainID, "Invalid source chain");
+            require(request.user == user, "Invalid user");
+            require(request.token == token, "Invalid token");
+            require(request.amount == messageAmount, "Invalid amount");
+            require(!request.isCompleted, "Request already completed");
+            
+            // Mark request as completed
+            request.isCompleted = true;
+        }
         
         // Handle the cross-chain action
         if (keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("lend"))) {
-            _handleCrossChainLend(targetChain, token, user, amount, requestId);
+            _handleCrossChainLend(targetChain, token, user, amount > 0 ? amount : messageAmount, requestId);
         } else if (keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("withdraw"))) {
-            _handleCrossChainWithdraw(targetChain, token, user, amount, requestId);
+            _handleCrossChainWithdraw(targetChain, token, user, amount > 0 ? amount : messageAmount, requestId);
         }
         
-        // Mark request as completed
-        request.isCompleted = true;
-        
-        emit CrossChainCallCompleted(_sourceChain, targetChain, user, amount);
+        emit CrossChainCallCompleted(context.chainID, targetChain, user, amount > 0 ? amount : messageAmount);
     }
     
     /**
