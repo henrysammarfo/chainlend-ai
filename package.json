@@ -1,0 +1,87 @@
+{
+  "name": "chainlend-ai",
+  "description": "Cross-Chain Lending Platform powered by ZetaChain Universal Smart Contracts and Google Gemini AI",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "keywords": [
+    "zetachain",
+    "defi",
+    "lending",
+    "cross-chain",
+    "ai",
+    "gemini",
+    "blockchain",
+    "ethereum",
+    "web3"
+  ],
+  "author": "ChainLend AI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/chainlend-ai.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "type-check": "tsc --noEmit",
+    "deploy:testnet": "hardhat run scripts/deploy-testnet.js --network zetachain-testnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network zetachain-mainnet",
+    "test:contracts": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "verify:testnet": "hardhat verify --network zetachain-testnet",
+    "verify:mainnet": "hardhat verify --network zetachain-mainnet",
+    "format": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@zetachain/protocol-contracts": "^11.0.0-rc.1",
+    "@openzeppelin/contracts": "^4.9.3",
+    "hardhat": "^2.19.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "recharts": "^2.12.0",
+    "web3": "^4.4.0",
+    "ethers": "^6.11.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^9.9.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.3.0",
+    "vite": "^5.4.2",
+    "prettier": "^3.2.5",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}
