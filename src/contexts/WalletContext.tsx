@@ -10,15 +10,65 @@ declare global {
 interface WalletContextType {
   isConnected: boolean;
   address: string | null;
+  chainId: number | null;
   balance: string;
-  chainId: number;
-  testnetBalances: { [token: string]: string };
-  connectWallet: () => Promise<void>;
+  connectWallet: () => void;
   disconnectWallet: () => void;
   switchChain: (chainId: number) => Promise<void>;
-  addTestnetTokens: (tokenAddress: string) => Promise<void>;
-  updateBalance: (token: string, amount: string) => void;
+  testnetBalances: {
+    USDC: string;
+    ETH: string;
+    USDT: string;
+    DAI: string;
+    AVAX: string;
+    BNB: string;
+  };
+  currentNetworkData: {
+    name: string;
+    rpc: string;
+    explorer: string;
+    nativeCurrency: string;
+    blockTime: number;
+  };
 }
+
+const NETWORKS = {
+  7001: {
+    name: 'ZetaChain Testnet',
+    rpc: 'https://zetachain-athens-evm.blockpi.network/v1/rpc/public',
+    explorer: 'https://explorer.zetachain.com/',
+    nativeCurrency: 'ZETA',
+    blockTime: 2
+  },
+  11155111: {
+    name: 'Ethereum Sepolia',
+    rpc: 'https://sepolia.infura.io/v3/',
+    explorer: 'https://sepolia.etherscan.io/',
+    nativeCurrency: 'ETH',
+    blockTime: 12
+  },
+  97: {
+    name: 'BSC Testnet',
+    rpc: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+    explorer: 'https://testnet.bscscan.com/',
+    nativeCurrency: 'tBNB',
+    blockTime: 3
+  },
+  80001: {
+    name: 'Polygon Mumbai',
+    rpc: 'https://rpc-mumbai.maticvigil.com/',
+    explorer: 'https://mumbai.polygonscan.com/',
+    nativeCurrency: 'MATIC',
+    blockTime: 2
+  },
+  43113: {
+    name: 'Avalanche Fuji',
+    rpc: 'https://api.avax-test.network/ext/bc/C/rpc',
+    explorer: 'https://testnet.snowtrace.io/',
+    nativeCurrency: 'AVAX',
+    blockTime: 2
+  }
+};
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
@@ -33,201 +83,169 @@ export const useWallet = () => {
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
-  const [balance, setBalance] = useState('0.00');
-  const [chainId, setChainId] = useState(7001); // Default to ZetaChain testnet
-  const [testnetBalances, setTestnetBalances] = useState<{ [token: string]: string }>({
-    USDC: '5000.00',
-    ETH: '2.5',
-    USDT: '3000.00',
-    DAI: '1500.00',
-    ZETA: '1000.00',
-    BNB: '10.0',
-    MATIC: '2000.00',
-    AVAX: '50.0'
-  });
+  const [chainId, setChainId] = useState<number | null>(7001); // Default to ZetaChain
+  const [balance, setBalance] = useState('0');
 
-  // Check if wallet is already connected
-  useEffect(() => {
-    checkConnection();
-  }, []);
+  // Mock testnet balances that adapt to network
+  const getTestnetBalances = (chainId: number) => {
+    const baseBalances = {
+      USDC: '5000.00',
+      ETH: '2.5',
+      USDT: '2000.00',
+      DAI: '1500.00',
+      AVAX: '100.00',
+      BNB: '5.00'
+    };
 
-  const checkConnection = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setIsConnected(true);
-          setAddress(accounts[0]);
-          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-          setChainId(parseInt(chainId, 16));
-          // Get balance (simplified)
-          setBalance('12.847');
-        }
-      } catch (error) {
-        console.error('Error checking wallet connection:', error);
-      }
+    // Adjust balances based on network
+    switch (chainId) {
+      case 7001: // ZetaChain
+        return {
+          ...baseBalances,
+          USDC: '10000.00',
+          ETH: '5.0',
+          USDT: '5000.00'
+        };
+      case 11155111: // Ethereum Sepolia
+        return {
+          ...baseBalances,
+          ETH: '10.0',
+          USDC: '8000.00'
+        };
+      case 97: // BSC Testnet
+        return {
+          ...baseBalances,
+          BNB: '20.00',
+          USDT: '8000.00'
+        };
+      case 80001: // Polygon Mumbai
+        return {
+          ...baseBalances,
+          DAI: '3000.00',
+          MATIC: '1000.00'
+        };
+      case 43113: // Avalanche Fuji
+        return {
+          ...baseBalances,
+          AVAX: '200.00',
+          USDC: '6000.00'
+        };
+      default:
+        return baseBalances;
     }
   };
 
-  // Real wallet connection with MetaMask
+  const [testnetBalances, setTestnetBalances] = useState(getTestnetBalances(7001));
+
+  // Update balances when network changes
+  useEffect(() => {
+    if (chainId) {
+      setTestnetBalances(getTestnetBalances(chainId));
+    }
+  }, [chainId]);
+
   const connectWallet = async () => {
-    try {
-      if (typeof window.ethereum !== 'undefined') {
-        // Request account access
-        const accounts = await window.ethereum.request({ 
-          method: 'eth_requestAccounts' 
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        setAddress(account);
+        setIsConnected(true);
+        
+        // Get current chain ID
+        const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+        const chainIdNumber = parseInt(currentChainId, 16);
+        setChainId(chainIdNumber);
+        
+        // Get balance
+        const balance = await window.ethereum.request({
+          method: 'eth_getBalance',
+          params: [account, 'latest']
+        });
+        setBalance((parseInt(balance, 16) / 1e18).toFixed(4));
+        
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', (accounts: string[]) => {
+          if (accounts.length === 0) {
+            disconnectWallet();
+          } else {
+            setAddress(accounts[0]);
+          }
         });
         
-        if (accounts.length > 0) {
-          setIsConnected(true);
-          setAddress(accounts[0]);
-          
-          // Get current chain ID
-          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-          setChainId(parseInt(chainId, 16));
-          
-          // Set testnet balance
-          setBalance('25.847');
-          
-          // Listen for account changes
-          window.ethereum.on('accountsChanged', (accounts: string[]) => {
-            if (accounts.length === 0) {
-              disconnectWallet();
-            } else {
-              setAddress(accounts[0]);
-            }
-          });
-          
-          // Listen for chain changes
-          window.ethereum.on('chainChanged', (chainId: string) => {
-            setChainId(parseInt(chainId, 16));
-          });
-        }
-      } else {
-        // Fallback to simulation if MetaMask not available
-        setIsConnected(true);
-        setAddress('0x742d35Cc6634C0532925a3b8D4C9db96590c6C87');
-        setBalance('25.847');
-        setChainId(7001); // ZetaChain testnet
-        alert('MetaMask not detected. Using simulated wallet for demo.');
+        // Listen for chain changes
+        window.ethereum.on('chainChanged', (chainId: string) => {
+          const newChainId = parseInt(chainId, 16);
+          setChainId(newChainId);
+          window.location.reload();
+        });
+        
+      } catch (error) {
+        console.error('Failed to connect wallet:', error);
       }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
-      alert('Failed to connect wallet. Please try again.');
+    } else {
+      alert('Please install MetaMask to use this app!');
     }
   };
 
   const disconnectWallet = () => {
     setIsConnected(false);
     setAddress(null);
-    setBalance('0.00');
-    setChainId(7001);
-  };
-
-  const updateBalance = (token: string, amount: string) => {
-    setTestnetBalances(prev => ({
-      ...prev,
-      [token]: amount
-    }));
+    setChainId(null);
+    setBalance('0');
   };
 
   const switchChain = async (newChainId: number) => {
-    try {
-      if (typeof window.ethereum !== 'undefined' && isConnected) {
-        const chainIdHex = '0x' + newChainId.toString(16);
-        
-        try {
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: chainIdHex }],
-          });
-          setChainId(newChainId);
-        } catch (switchError: any) {
-          // Chain not added to MetaMask
-          if (switchError.code === 4902) {
-            await addNetwork(newChainId);
-          } else {
-            throw switchError;
-          }
-        }
-      } else {
-        // Fallback simulation
-        setChainId(newChainId);
-      }
-    } catch (error) {
-      console.error('Failed to switch chain:', error);
-      alert('Failed to switch network. Please try manually in your wallet.');
-    }
-  };
-
-  const addNetwork = async (chainId: number) => {
-    const networks: { [key: number]: any } = {
-      7001: {
-        chainId: '0x1B59',
-        chainName: 'ZetaChain Athens Testnet',
-        nativeCurrency: { name: 'ZETA', symbol: 'ZETA', decimals: 18 },
-        rpcUrls: ['https://zetachain-athens-evm.blockpi.network/v1/rpc/public'],
-        blockExplorerUrls: ['https://athens3.explorer.zetachain.com/']
-      },
-      11155111: {
-        chainId: '0xAA36A7',
-        chainName: 'Ethereum Sepolia',
-        nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-        rpcUrls: ['https://sepolia.infura.io/v3/'],
-        blockExplorerUrls: ['https://sepolia.etherscan.io/']
-      }
-    };
-
-    const network = networks[chainId];
-    if (network && window.ethereum) {
+    if (typeof window.ethereum !== 'undefined') {
       try {
         await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [network],
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: `0x${newChainId.toString(16)}` }],
         });
-        setChainId(chainId);
-      } catch (error) {
-        console.error('Failed to add network:', error);
+        setChainId(newChainId);
+      } catch (error: any) {
+        if (error.code === 4902) {
+          // Chain not added, add it
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: `0x${newChainId.toString(16)}`,
+                chainName: NETWORKS[newChainId as keyof typeof NETWORKS]?.name || 'Unknown Network',
+                nativeCurrency: {
+                  name: NETWORKS[newChainId as keyof typeof NETWORKS]?.nativeCurrency || 'ETH',
+                  symbol: NETWORKS[newChainId as keyof typeof NETWORKS]?.nativeCurrency || 'ETH',
+                  decimals: 18
+                },
+                rpcUrls: [NETWORKS[newChainId as keyof typeof NETWORKS]?.rpc || ''],
+                blockExplorerUrls: [NETWORKS[newChainId as keyof typeof NETWORKS]?.explorer || '']
+              }]
+            });
+            setChainId(newChainId);
+          } catch (addError) {
+            console.error('Failed to add network:', addError);
+          }
+        } else {
+          console.error('Failed to switch network:', error);
+        }
       }
     }
   };
 
-  const addTestnetTokens = async (tokenAddress: string) => {
-    try {
-      if (typeof window.ethereum !== 'undefined') {
-        await window.ethereum.request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: {
-              address: tokenAddress,
-              symbol: 'USDC',
-              decimals: 6,
-              image: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png',
-            },
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Failed to add token:', error);
-    }
-  };
-
-  const value = {
-    isConnected,
-    address,
-    balance,
-    chainId,
-    testnetBalances,
-    connectWallet,
-    disconnectWallet,
-    switchChain,
-    addTestnetTokens,
-    updateBalance,
-  };
+  const currentNetworkData = chainId ? NETWORKS[chainId as keyof typeof NETWORKS] || NETWORKS[7001] : NETWORKS[7001];
 
   return (
-    <WalletContext.Provider value={value}>
+    <WalletContext.Provider value={{
+      isConnected,
+      address,
+      chainId,
+      balance,
+      connectWallet,
+      disconnectWallet,
+      switchChain,
+      testnetBalances,
+      currentNetworkData
+    }}>
       {children}
     </WalletContext.Provider>
   );
